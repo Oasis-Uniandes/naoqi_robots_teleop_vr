@@ -13,6 +13,10 @@ robot:
   
   # Startup posture to go to after disabling autonomy (e.g. "StandInit")
   startup_posture: "StandInit"
+  
+  # URDF Paths
+  nao_urdf_path: "/root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf"
+  pepper_urdf_path: "" # Will fallback to robot_descriptions if empty
 
   # Camera Settings (0=160x120, 1=320x240, 2=640x480)
   camera_resolution: 2

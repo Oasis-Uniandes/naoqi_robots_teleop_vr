@@ -28,14 +28,29 @@ class DesktopVis:
             self._thread.join()
 
     def _load_urdf(self):
-        if self.shared_state.robot_type == "pepper":
-            import robot_descriptions.pepper_description as desc
-            urdf_path = desc.URDF_PATH
-        else:
-            import robot_descriptions.nao_description as desc
-            urdf_path = desc.URDF_PATH
+        print(f"DesktopVis: Loading URDF for {self.shared_state.robot_type}...")
+        try:
+            if self.shared_state.robot_type == "pepper":
+                urdf_path = self.cfg.robot.pepper_urdf_path
+                if not urdf_path:
+                    import robot_descriptions.pepper_description as desc
+                    urdf_path = desc.URDF_PATH
+            else:
+                urdf_path = self.cfg.robot.nao_urdf_path
+                
+            import yourdfpy
+            from pathlib import Path
+            urdf_path_obj = Path(urdf_path)
             
-        self.urdf = ViserUrdf(self.server, urdf_path)
+            def filename_handler(fname):
+                return yourdfpy.filename_handler_magic(fname, dir=urdf_path_obj.parent)
+                
+            parsed_urdf = yourdfpy.URDF.load(str(urdf_path_obj), filename_handler=filename_handler)
+            self.urdf = ViserUrdf(self.server, parsed_urdf)
+        except Exception as e:
+            import traceback
+            print(f"DesktopVis: Failed to load URDF: {e}")
+            print(traceback.format_exc())
 
     def _loop(self):
         self.server = viser.ViserServer(port=self.port)
@@ -58,10 +73,10 @@ class DesktopVis:
             if self.urdf and angles:
                 self.urdf.update_cfg(angles)
                 
-            # Update cameras in Viser GUI (render as images floating or as GUI images)
+            # Update cameras in Viser GUI
             if top is not None:
-                self.server.scene.add_image("cameras/top", top, render_width=1.0, position=(1, 0, 1.5), look_at=(0, 0, 0))
+                self.server.scene.add_image("cameras/top", top, render_width=1.0, render_height=0.75, position=(1, 0, 1.5))
             if bot is not None:
-                self.server.scene.add_image("cameras/bottom", bot, render_width=1.0, position=(1, 0, 0.5), look_at=(0, 0, 0))
+                self.server.scene.add_image("cameras/bottom", bot, render_width=1.0, render_height=0.75, position=(1, 0, 0.5))
                 
             time.sleep(0.05)

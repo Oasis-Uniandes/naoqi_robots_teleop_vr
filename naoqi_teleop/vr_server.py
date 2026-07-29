@@ -1,10 +1,11 @@
 import asyncio
 import io
+import time
 import threading
 import numpy as np
 from PIL import Image
 from scipy.spatial.transform import Rotation as R
-from aiohttp import web
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from vuer import Vuer, VuerSession
 from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html
@@ -33,43 +34,55 @@ class VRServer:
         self._setup_handlers()
 
     def _setup_routes(self):
-        # Setup audio stream endpoint directly on Vuer's internal aiohttp app
-        async def audio_stream_handler(request):
-            response = web.StreamResponse(
-                status=200,
-                reason='OK',
-                headers={'Content-Type': 'audio/wav'}
-            )
-            await response.prepare(request)
-            
-            # Minimal WAV header for 16kHz mono 16-bit PCM (fake huge size for continuous stream)
-            header = b'RIFF\xff\xff\xff\x7fWAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\xff\xff\xff\x7f'
-            await response.write(header)
-            
-            try:
-                while self._running:
-                    chunk = self.shared_state.pop_audio()
-                    if chunk:
-                        await response.write(chunk)
-                    else:
-                        await asyncio.sleep(0.05)
-            except Exception:
+        # We start a separate threaded HTTP server for audio to avoid freezing Vuer's router
+        class AudioHandler(BaseHTTPRequestHandler):
+            def do_GET(req_self):
+                if req_self.path == "/audio_stream":
+                    req_self.send_response(200)
+                    req_self.send_header('Content-Type', 'audio/wav')
+                    req_self.send_header('Access-Control-Allow-Origin', '*')
+                    req_self.end_headers()
+                    
+                    header = b'RIFF\xff\xff\xff\x7fWAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\xff\xff\xff\x7f'
+                    try:
+                        req_self.wfile.write(header)
+                        while self._running:
+                            chunk = self.shared_state.pop_audio()
+                            if chunk:
+                                req_self.wfile.write(chunk)
+                                req_self.wfile.flush()
+                            else:
+                                time.sleep(0.05)
+                    except Exception:
+                        pass
+                else:
+                    req_self.send_response(404)
+                    req_self.end_headers()
+                    
+            def log_message(self, format, *args):
                 pass
                 
-            return response
-            
-        self.app._add_route("/audio_stream", audio_stream_handler, "GET")
+        class ReusableTCPServer(HTTPServer):
+            allow_reuse_address = True
+                
+        def run_audio_server():
+            server = ReusableTCPServer(('0.0.0.0', self.port + 1), AudioHandler)
+            while self._running:
+                server.handle_request()
+                
+        self.audio_thread = threading.Thread(target=run_audio_server, daemon=True)
 
     def _setup_handlers(self):
-        @self.app.spawn(start=True)
+        @self.app.spawn
         async def main(session: VuerSession):
             # Setup scene with controllers and an HTML audio element to play our stream
             session.set @ DefaultScene()
             session.upsert(MotionControllers(stream=True, key="motionControllers", left=True, right=True), to="bgChildren")
             
             if self.cfg.robot.enable_audio:
+                # Use the new separate audio port (Vuer port + 1)
                 session.upsert(Html(
-                    html="<audio autoplay src='/audio_stream'></audio>",
+                    html=f"<audio autoplay src='http://localhost:{self.port + 1}/audio_stream'></audio>",
                     position=[0, 0, 0],
                     key="audio-player"
                 ), to="bgChildren")
@@ -178,6 +191,7 @@ class VRServer:
 
     def start(self):
         self._running = True
+        self.audio_thread.start()
         self._thread = threading.Thread(target=self._run_server, daemon=True)
         self._thread.start()
 

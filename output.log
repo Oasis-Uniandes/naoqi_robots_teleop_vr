@@ -1,0 +1,254 @@
+[W] 1785293476.051847 25368 qi.path.sdklayout: No Application was created, trying to deduce paths
+[W] 1785293477.508890 25368 qimessaging.session: No listen URL specified, using the hardcoded default value 'tcp://127.0.0.1:0', consider specifying a value.
+Exception in thread Thread-1 (run_audio_server):
+Traceback (most recent call last):
+  File "/root/.pyenv/versions/3.11.15/lib/python3.11/threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "/root/.pyenv/versions/3.11.15/lib/python3.11/threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "/root/lerobot/naoqi_robots_teleop_vr/naoqi_teleop/vr_server.py", line 69, in run_audio_server
+    server = ReusableTCPServer(('0.0.0.0', self.port + 1), AudioHandler)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.pyenv/versions/3.11.15/lib/python3.11/socketserver.py", line 456, in __init__
+Unable to resolve filename: package://nao_meshes/meshes/V40/HeadYaw.dae
+    self.server_bind()
+Can't find package://nao_meshes/meshes/V40/HeadYaw.dae
+  File "/root/.pyenv/versions/3.11.15/lib/python3.11/http/server.py", line 140, in server_bind
+Unable to resolve filename: package://nao_meshes/meshes/V40/HeadPitch.dae
+    socketserver.TCPServer.server_bind(self)
+Can't find package://nao_meshes/meshes/V40/HeadPitch.dae
+  File "/root/.pyenv/versions/3.11.15/lib/python3.11/socketserver.py", line 472, in server_bind
+    self.socket.bind(self.server_address)
+OSError: [Errno 98] Address already in use
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipYawPitch.dae
+Can't find package://nao_meshes/meshes/V40/LHipYawPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipRoll.dae
+Can't find package://nao_meshes/meshes/V40/LHipRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipPitch.dae
+Can't find package://nao_meshes/meshes/V40/LHipPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LKneePitch.dae
+Can't find package://nao_meshes/meshes/V40/LKneePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LAnklePitch.dae
+Can't find package://nao_meshes/meshes/V40/LAnklePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LAnkleRoll.dae
+Can't find package://nao_meshes/meshes/V40/LAnkleRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipYawPitch.dae
+Can't find package://nao_meshes/meshes/V40/RHipYawPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipRoll.dae
+Can't find package://nao_meshes/meshes/V40/RHipRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipPitch.dae
+Can't find package://nao_meshes/meshes/V40/RHipPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RKneePitch.dae
+Can't find package://nao_meshes/meshes/V40/RKneePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RAnklePitch.dae
+Can't find package://nao_meshes/meshes/V40/RAnklePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RAnkleRoll.dae
+Can't find package://nao_meshes/meshes/V40/RAnkleRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/Torso.dae
+Can't find package://nao_meshes/meshes/V40/Torso.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LShoulderPitch.dae
+Can't find package://nao_meshes/meshes/V40/LShoulderPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LShoulderRoll.dae
+Can't find package://nao_meshes/meshes/V40/LShoulderRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LElbowRoll.dae
+Can't find package://nao_meshes/meshes/V40/LElbowRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LWristYaw.dae
+Can't find package://nao_meshes/meshes/V40/LWristYaw.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RShoulderPitch.dae
+Can't find package://nao_meshes/meshes/V40/RShoulderPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RShoulderRoll.dae
+Can't find package://nao_meshes/meshes/V40/RShoulderRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RElbowRoll.dae
+Can't find package://nao_meshes/meshes/V40/RElbowRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RWristYaw.dae
+Can't find package://nao_meshes/meshes/V40/RWristYaw.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger13.dae
+Loaded Configuration:
+robot:
+  ip: 157.253.113.142
+  port: 9559
+  loop_rate_hz: 20
+  enable_audio: true
+  enable_top_camera: true
+  enable_bot_camera: true
+  startup_posture: StandInit
+  nao_urdf_path: /root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf
+  pepper_urdf_path: ''
+  camera_resolution: 2
+vr:
+  host: 0.0.0.0
+  port: 8012
+  viser_port: 8080
+  cert: cert.pem
+  key: key.pem
+teleop:
+  joystick_walk_speed: 0.2
+  joystick_rotate_speed: 0.3
+  body_yaw_gain: 1.5
+  controller_pitch_offset_deg: 40.0
+  controller_z_offset_m: 0.1
+  head_pitch_min: -0.6
+  head_pitch_max: 0.4
+  head_yaw_min: -2.0
+  head_yaw_max: 2.0
+ik:
+  loop_rate_hz: 100
+
+Starting subsystems...
+Connecting to robot at 157.253.113.142:9559...
+Detected robot: nao
+Checking autonomy services...
+Going to startup posture: StandInit...
+Failed to subscribe to audio: Service "VRAudioProcessor" (#152) is already registered. Rejecting conflicting registration attempt.
+IKSolver: Loading URDF for nao...
+All subsystems running. Press Ctrl+C to exit.
+[1mVuer Server[0m
+
+[36mLocal:[0m   https://vuer.ai?ws=wss://localhost:8012
+[36mNetwork:[0m https://vuer.ai?ws=wss://172.26.115.130:8012
+
+[36mWorkspace:[0m
+
+ [2m·[0m file:///root/lerobot/naoqi_robots_teleop_vr
+[2m->[0m https://vuer.ai/workspace
+
+╭────── viser (listening *:8082) ───────╮
+│             ╷                         │
+│   HTTP      │ http://localhost:8082   │
+│   Websocket │ ws://localhost:8082     │
+│             ╵                         │
+╰───────────────────────────────────────╯
+Can't find package://nao_meshes/meshes/V40/RFinger13.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger12.dae
+Can't find package://nao_meshes/meshes/V40/RFinger12.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger21.dae
+Can't find package://nao_meshes/meshes/V40/LFinger21.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger13.dae
+Can't find package://nao_meshes/meshes/V40/LFinger13.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger11.dae
+Can't find package://nao_meshes/meshes/V40/LFinger11.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger22.dae
+Can't find package://nao_meshes/meshes/V40/RFinger22.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger22.dae
+Can't find package://nao_meshes/meshes/V40/LFinger22.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger21.dae
+Can't find package://nao_meshes/meshes/V40/RFinger21.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger12.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/HeadYaw.dae
+Can't find package://nao_meshes/meshes/V40/LFinger12.dae
+Can't find package://nao_meshes/meshes/V40/HeadYaw.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger23.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/HeadPitch.dae
+Can't find package://nao_meshes/meshes/V40/RFinger23.dae
+Can't find package://nao_meshes/meshes/V40/HeadPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger11.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipYawPitch.dae
+Can't find package://nao_meshes/meshes/V40/RFinger11.dae
+Can't find package://nao_meshes/meshes/V40/LHipYawPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger23.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipRoll.dae
+Can't find package://nao_meshes/meshes/V40/LFinger23.dae
+Can't find package://nao_meshes/meshes/V40/LHipRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LThumb1.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LHipPitch.dae
+Can't find package://nao_meshes/meshes/V40/LThumb1.dae
+Can't find package://nao_meshes/meshes/V40/LHipPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RThumb1.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LKneePitch.dae
+Can't find package://nao_meshes/meshes/V40/RThumb1.dae
+Can't find package://nao_meshes/meshes/V40/LKneePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RThumb2.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LAnklePitch.dae
+Can't find package://nao_meshes/meshes/V40/RThumb2.dae
+Can't find package://nao_meshes/meshes/V40/LAnklePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LThumb2.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LAnkleRoll.dae
+Can't find package://nao_meshes/meshes/V40/LThumb2.dae
+Can't find package://nao_meshes/meshes/V40/LAnkleRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipYawPitch.dae
+Can't find package://nao_meshes/meshes/V40/RHipYawPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipRoll.dae
+Can't find package://nao_meshes/meshes/V40/RHipRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RHipPitch.dae
+Can't find package://nao_meshes/meshes/V40/RHipPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RKneePitch.dae
+Can't find package://nao_meshes/meshes/V40/RKneePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RAnklePitch.dae
+Can't find package://nao_meshes/meshes/V40/RAnklePitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RAnkleRoll.dae
+Can't find package://nao_meshes/meshes/V40/RAnkleRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/Torso.dae
+Can't find package://nao_meshes/meshes/V40/Torso.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LShoulderPitch.dae
+Can't find package://nao_meshes/meshes/V40/LShoulderPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LShoulderRoll.dae
+Can't find package://nao_meshes/meshes/V40/LShoulderRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LElbowRoll.dae
+Can't find package://nao_meshes/meshes/V40/LElbowRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LWristYaw.dae
+Can't find package://nao_meshes/meshes/V40/LWristYaw.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RShoulderPitch.dae
+Can't find package://nao_meshes/meshes/V40/RShoulderPitch.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RShoulderRoll.dae
+Can't find package://nao_meshes/meshes/V40/RShoulderRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RElbowRoll.dae
+Can't find package://nao_meshes/meshes/V40/RElbowRoll.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RWristYaw.dae
+Can't find package://nao_meshes/meshes/V40/RWristYaw.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger13.dae
+Can't find package://nao_meshes/meshes/V40/RFinger13.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger12.dae
+Can't find package://nao_meshes/meshes/V40/RFinger12.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger21.dae
+Can't find package://nao_meshes/meshes/V40/LFinger21.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger13.dae
+Can't find package://nao_meshes/meshes/V40/LFinger13.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger11.dae
+Can't find package://nao_meshes/meshes/V40/LFinger11.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger22.dae
+Can't find package://nao_meshes/meshes/V40/RFinger22.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger22.dae
+Can't find package://nao_meshes/meshes/V40/LFinger22.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger21.dae
+Can't find package://nao_meshes/meshes/V40/RFinger21.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger12.dae
+Can't find package://nao_meshes/meshes/V40/LFinger12.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger23.dae
+Can't find package://nao_meshes/meshes/V40/RFinger23.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RFinger11.dae
+Can't find package://nao_meshes/meshes/V40/RFinger11.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LFinger23.dae
+Can't find package://nao_meshes/meshes/V40/LFinger23.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LThumb1.dae
+Can't find package://nao_meshes/meshes/V40/LThumb1.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RThumb1.dae
+Can't find package://nao_meshes/meshes/V40/RThumb1.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/RThumb2.dae
+Can't find package://nao_meshes/meshes/V40/RThumb2.dae
+Unable to resolve filename: package://nao_meshes/meshes/V40/LThumb2.dae
+Can't find package://nao_meshes/meshes/V40/LThumb2.dae
+An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+2026-07-28 21:51:18.162 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger13' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.163 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger12' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.164 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger21' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.164 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger13' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.165 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger11' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.166 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger22' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.167 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger22' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.167 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger21' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.168 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger12' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.169 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger23' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.169 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger11' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.170 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger23' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.171 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LThumb1' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.171 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RThumb1' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.172 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RThumb2' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.173 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LThumb2' has no explicit limits. Returning [-pi, pi].
+2026-07-28 21:51:18.325 | INFO     | pyroki._robot_urdf_parser:_topologically_sort_joints:199 - Joints were not in topological order; they will be internally sorted.
+DesktopVis: Loading URDF for nao...
+
+Shutting down gracefully...
+IKSolver: Ready.
+Stopping subsystems...
+Shutdown complete.
+(viser) Server stopped

@@ -31,11 +31,25 @@ class IKSolver:
         print(f"IKSolver: Loading URDF for {self.shared_state.robot_type}...")
         try:
             if self.shared_state.robot_type == "pepper":
-                urdf = load_robot_description("pepper_description")
+                urdf_path = self.cfg.robot.pepper_urdf_path
+                if not urdf_path:
+                    import robot_descriptions.pepper_description as desc
+                    urdf_path = desc.URDF_PATH
             else:
-                urdf = load_robot_description("nao_description")
+                urdf_path = self.cfg.robot.nao_urdf_path
+                if not urdf_path:
+                    import robot_descriptions.nao_description as desc
+                    urdf_path = desc.URDF_PATH
+                    
+            from pathlib import Path
+            urdf_path_obj = Path(urdf_path)
+            
+            def filename_handler(fname):
+                return yourdfpy.filename_handler_magic(fname, dir=urdf_path_obj.parent)
                 
-            # Fix infinite limits for continuous joints
+            urdf = yourdfpy.URDF.load(str(urdf_path_obj), filename_handler=filename_handler)
+            
+            # Fix infinite limits for continuous joints before passing to pyroki
             for joint in urdf.joint_map.values():
                 if joint.type in {"fixed", "floating", "planar"}:
                     continue
@@ -45,26 +59,15 @@ class IKSolver:
                     joint.limit.velocity = np.pi
 
             self.robot = pk.Robot.from_urdf(urdf)
+            
             self.q_left = np.array(self.robot.joint_var_cls(0).default_factory(), copy=True)
             self.q_right = np.array(self.robot.joint_var_cls(0).default_factory(), copy=True)
             
             # Optionally populate with current joint angles if available
-            self._sync_q_from_state()
+            # We omit _sync_q_from_state as pyroki joint orders and q vectors differ
             print("IKSolver: Ready.")
         except Exception as e:
             print(f"IKSolver: Failed to load robot: {e}")
-
-    def _sync_q_from_state(self):
-        with self.shared_state.lock:
-            angles = self.shared_state.joint_angles.copy()
-            
-        if not angles or not self.robot:
-            return
-            
-        for i, name in enumerate(self.robot.joints.names):
-            if name in angles:
-                self.q_left[i] = angles[name]
-                self.q_right[i] = angles[name]
 
     def _loop(self):
         # Wait for robot type detection
