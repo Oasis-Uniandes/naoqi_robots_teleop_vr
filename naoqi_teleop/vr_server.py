@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation as R
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from vuer import Vuer, VuerSession
-from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html
+from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html, Head
 
 from .shared_state import SharedState
 
@@ -78,6 +78,7 @@ class VRServer:
             # Setup scene with controllers and an HTML audio element to play our stream
             session.set @ DefaultScene()
             session.upsert(MotionControllers(stream=True, key="motionControllers", left=True, right=True), to="bgChildren")
+            session.upsert(Head(stream=True, fps=30), to="bgChildren")
             
             if self.cfg.robot.enable_audio:
                 # Use the new separate audio port (Vuer port + 1)
@@ -129,21 +130,21 @@ class VRServer:
                 walk_speed = self.cfg.teleop.joystick_walk_speed
                 rot_speed = self.cfg.teleop.joystick_rotate_speed
                 
-                if len(left_axes) >= 4:
-                    vx = -float(left_axes[3]) * walk_speed  # up is -Y on stick -> forward
-                    vy = -float(left_axes[2]) * walk_speed  # left is -X on stick -> left
+                if len(left_axes) >= 2:
+                    vx = -float(left_axes[-1]) * walk_speed  # up is -Y on stick -> forward
+                    vy = -float(left_axes[-2]) * walk_speed  # left is -X on stick -> left
                 else:
                     vx, vy = 0.0, 0.0
                     
-                if len(right_axes) >= 4:
-                    vtheta = -float(right_axes[2]) * rot_speed # left is -X on stick -> positive yaw
+                if len(right_axes) >= 2:
+                    vtheta = -float(right_axes[-2]) * rot_speed # left is -X on stick -> positive yaw
                 else:
                     vtheta = 0.0
                     
                 self.shared_state.target_walk = (vx, vy, vtheta)
 
-        @self.app.add_handler("CAMERA_MOVE")
-        async def on_camera_move(event, session: VuerSession):
+        @self.app.add_handler("HEAD_MOVE")
+        async def on_head_move(event, session: VuerSession):
             matrix = np.array(event.value["matrix"]).reshape(4, 4).T
             # Extract Pitch and Yaw
             euler = R.from_matrix(matrix[:3, :3]).as_euler("xyz")
@@ -184,7 +185,7 @@ class VRServer:
                 session.upsert(ImageBackground(
                     src=b64,
                     key="camera-feed",
-                    distanceToCamera=1.5
+                    distanceToCamera=4.0
                 ), to="bgChildren")
                 
             await asyncio.sleep(0.1) # 10Hz is plenty for VR camera stream

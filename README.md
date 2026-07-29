@@ -30,6 +30,19 @@ This project provides a standalone Python application for fully teleoperating So
 The teleoperator relies on standard URDF models to calculate Inverse Kinematics (via `pyroki`) and render the desktop 3D visualizer.
 
 - **NAO**: The default configuration points to the NAO V50 URDF provided in the LeRobot repository (`/root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf`). 
+
+If you do not have the NAO meshes installed, you can download them using the following commands:
+```bash
+cd /root/lerobot
+mkdir -p external/nao
+cd external/nao
+git clone https://github.com/ros-naoqi/nao_robot.git
+wget -O naomeshes-0.6.7-linux-x64-installer.run \
+  https://github.com/ros-naoqi/nao_meshes_installer/raw/master/naomeshes-0.6.7-linux-x64-installer.run
+chmod +x naomeshes-0.6.7-linux-x64-installer.run
+./naomeshes-0.6.7-linux-x64-installer.run --mode text --prefix /root/lerobot/external/nao/nao_meshes
+```
+
 - **Pepper**: Download the Pepper robot description package, and update your configuration key (`robot.pepper_urdf_path`) to point to the location of `pepper.urdf`.
 
 You can configure both paths dynamically at runtime or by editing `configs/default.yaml`.

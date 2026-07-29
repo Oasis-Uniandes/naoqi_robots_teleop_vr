@@ -224,8 +224,8 @@ class RobotIO:
             angles.extend([head[0], head[1]])
             
             if names:
-                # Use a small fraction of max speed for smooth streaming
-                self.motion.setAngles(names, angles, 0.15)
+                # Use a larger fraction of max speed for fast streaming
+                self.motion.setAngles(names, angles, 0.8)
                 
             # 2. Walking / Rolling
             vx, vy, vtheta = walk
