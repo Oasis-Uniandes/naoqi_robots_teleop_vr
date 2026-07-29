@@ -25,6 +25,15 @@ This project provides a standalone Python application for fully teleoperating So
    ```
 3. Ensure you have the `qi` library available in your environment (typically via the `pynaoqi` wheel).
 
+## URDF Models Setup
+
+The teleoperator relies on standard URDF models to calculate Inverse Kinematics (via `pyroki`) and render the desktop 3D visualizer.
+
+- **NAO**: The default configuration points to the NAO V50 URDF provided in the LeRobot repository (`/root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf`). 
+- **Pepper**: Download the Pepper robot description package, and update your configuration key (`robot.pepper_urdf_path`) to point to the location of `pepper.urdf`.
+
+You can configure both paths dynamically at runtime or by editing `configs/default.yaml`.
+
 ## Configuration
 
 The application uses `OmegaConf` for a highly flexible, hierarchical configuration system similar to LeRobot.
@@ -49,6 +58,8 @@ python main.py robot.ip=192.168.1.100 teleop.joystick_walk_speed=0.1
 - `robot.enable_audio`: Toggle microphone streaming to VR (default: `true`).
 - `robot.enable_top_camera` / `enable_bot_camera`: Toggle individual camera streams (default: `true`).
 - `robot.camera_resolution`: 0 = 160x120, 1 = 320x240, 2 = 640x480 (default: `2`).
+- `robot.nao_urdf_path`: Path to the NAO URDF model (default: `"/root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf"`).
+- `robot.pepper_urdf_path`: Path to the Pepper URDF model (default: `""`).
 
 #### `vr` group
 - `vr.host`: Host address for the Vuer server (default: `"0.0.0.0"`).

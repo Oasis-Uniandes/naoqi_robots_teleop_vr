@@ -4,7 +4,9 @@ import numpy as np
 import pyroki as pk
 from robot_descriptions.loaders.yourdfpy import load_robot_description
 import yourdfpy
+from scipy.spatial.transform import Rotation as R
 
+from .pyroki_snippets._solve_ik import solve_ik
 from .shared_state import SharedState
 
 class IKSolver:
@@ -97,44 +99,39 @@ class IKSolver:
             time.sleep(1.0 / self.cfg.ik.loop_rate_hz)
 
     def _solve_arm(self, target_matrix: np.ndarray, link_name: str, q_state: np.ndarray, left: bool):
-        # Use pyroki to solve IK
-        req = pk.IKRequest(
-            link=link_name,
-            position=target_matrix[:3, 3],
-            rotation=target_matrix[:3, :3],
-            weight_position=1.0,
-            weight_rotation=1.0,
-        )
+        prefix = "L" if left else "R"
+        arm_joints = {
+            f"{prefix}ShoulderPitch",
+            f"{prefix}ShoulderRoll",
+            f"{prefix}ElbowYaw",
+            f"{prefix}ElbowRoll",
+            f"{prefix}WristYaw"
+        }
+        joint_mask = np.array([
+            1.0 if joint_name in arm_joints else 0.0
+            for joint_name in self.robot.joints.actuated_names
+        ])
         
-        sol = self.robot.inverse_kinematics(
-            q_state,
-            [req],
-            iters=10,
-            tol=1e-3,
-        )
+        target_pos = target_matrix[:3, 3]
+        target_wxyz = R.from_matrix(target_matrix[:3, :3]).as_quat()[[3, 0, 1, 2]]
         
-        if sol.success:
-            q_state[:] = sol.q
-            
-            # Extract just the arm joints to send to the robot
-            # Softbank arms use these joint names
-            prefix = "L" if left else "R"
-            arm_joints = [
-                f"{prefix}ShoulderPitch",
-                f"{prefix}ShoulderRoll",
-                f"{prefix}ElbowYaw",
-                f"{prefix}ElbowRoll",
-                f"{prefix}WristYaw"
-            ]
-            
-            out_dict = {}
-            for jname in arm_joints:
-                if jname in self.robot.joints.names:
-                    idx = self.robot.joints.names.index(jname)
-                    out_dict[jname] = float(q_state[idx])
-                    
-            with self.shared_state.lock:
-                if left:
-                    self.shared_state.ik_joints_left = out_dict
-                else:
-                    self.shared_state.ik_joints_right = out_dict
+        new_q = solve_ik(
+            robot=self.robot,
+            target_link_name=link_name,
+            target_wxyz=target_wxyz,
+            target_position=target_pos,
+            joint_mask=joint_mask,
+            prev_cfg=q_state
+        )
+        q_state[:] = new_q
+        
+        out_dict = {}
+        for i, jname in enumerate(self.robot.joints.actuated_names):
+            if jname in arm_joints:
+                out_dict[jname] = float(q_state[i])
+                
+        with self.shared_state.lock:
+            if left:
+                self.shared_state.ik_joints_left = out_dict
+            else:
+                self.shared_state.ik_joints_right = out_dict
