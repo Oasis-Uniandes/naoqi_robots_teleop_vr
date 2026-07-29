@@ -1,0 +1,7 @@
+vuer
+viser
+pyroki
+robot_descriptions
+numpy
+scipy
+yourdfpy
