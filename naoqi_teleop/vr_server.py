@@ -12,6 +12,41 @@ from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html,
 
 from .shared_state import SharedState
 
+R_VR_TO_ROBOT = np.array([
+    [0, 0, -1],
+    [-1, 0, 0],
+    [0, 1, 0],
+], dtype=float)
+
+def compute_robot_target_matrix(hand_matrix_vr: np.ndarray, user_hand: str, pitch_offset: float, z_offset: float) -> np.ndarray:
+    # Torso origin in VR
+    head_pos = np.array([0.0, 1.40, 0.0]) # config.user_height
+    origin_pos = head_pos + np.array([0.10, 0.0, 0.10])
+    right_vec = np.array([1.0, 0.0, 0.0])
+    if user_hand == "left":
+        origin_pos -= right_vec * 0.20
+    else:
+        origin_pos += right_vec * 0.20
+        
+    rel_vr = (hand_matrix_vr[:3, 3] - origin_pos) * 0.2 # target_position_scale
+    pos_robot = R_VR_TO_ROBOT @ rel_vr
+    
+    # Anchor position
+    if user_hand == "left":
+        pos_robot += np.array([0.18, 0.15, 0.35])
+    else:
+        pos_robot += np.array([0.18, -0.15, 0.35])
+        
+    R_hand_vr = hand_matrix_vr[:3, :3]
+    R_offset = R.from_euler("x", pitch_offset, degrees=True).as_matrix()
+    
+    T = np.eye(4)
+    T[:3, :3] = R_VR_TO_ROBOT @ R_hand_vr @ R_offset
+    # Include z_offset in the wrist local frame
+    local_offset = T[:3, :3] @ np.array([0, 0, z_offset])
+    T[:3, 3] = pos_robot + local_offset
+    return T
+
 class VRServer:
     def __init__(self, shared_state: SharedState, cfg):
         self.shared_state = shared_state
@@ -101,21 +136,17 @@ class VRServer:
             left_state = event.value.get("leftState", {})
             right_state = event.value.get("rightState", {})
             
-            # 1. Update IK Targets (Apply controller offset to match wrist)
+            # 1. Update IK Targets
             pitch_offset = self.cfg.teleop.controller_pitch_offset_deg
             z_offset = self.cfg.teleop.controller_z_offset_m
             
-            T_offset = np.eye(4)
-            T_offset[:3, :3] = R.from_euler("x", pitch_offset, degrees=True).as_matrix()
-            T_offset[2, 3] = z_offset
-            
             with self.shared_state.lock:
                 if left_data and len(left_data) >= 16:
-                    mat = np.array(left_data[:16]).reshape(4, 4).T @ T_offset
-                    self.shared_state.target_ik_left = mat
+                    mat_vr = np.array(left_data[:16]).reshape(4, 4).T
+                    self.shared_state.target_ik_left = compute_robot_target_matrix(mat_vr, "left", pitch_offset, z_offset)
                 if right_data and len(right_data) >= 16:
-                    mat = np.array(right_data[:16]).reshape(4, 4).T @ T_offset
-                    self.shared_state.target_ik_right = mat
+                    mat_vr = np.array(right_data[:16]).reshape(4, 4).T
+                    self.shared_state.target_ik_right = compute_robot_target_matrix(mat_vr, "right", pitch_offset, z_offset)
                     
                 # 2. Update Grippers
                 self.shared_state.target_grip_left = float(left_state.get("triggerValue", 0.0))
@@ -152,8 +183,8 @@ class VRServer:
                 
             # Extract Pitch and Yaw
             euler = R.from_matrix(matrix[:3, :3]).as_euler("xyz")
-            pitch = euler[0]
-            yaw = euler[1]
+            pitch = -euler[0]
+            yaw = -euler[1]
             
             with self.shared_state.lock:
                 # Update head pitch/yaw (limit to robot's physical bounds)
@@ -189,7 +220,7 @@ class VRServer:
                 session.upsert(ImageBackground(
                     src=b64,
                     key="camera-feed",
-                    distanceToCamera=4.0
+                    distanceToCamera=10.0
                 ), to="bgChildren")
                 
             await asyncio.sleep(0.1) # 10Hz is plenty for VR camera stream

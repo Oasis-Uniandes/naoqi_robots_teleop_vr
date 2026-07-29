@@ -1,0 +1,83 @@
+[W] 1785295044.807558 2325 qi.path.sdklayout: No Application was created, trying to deduce paths
+[W] 1785295046.073694 2325 qimessaging.session: No listen URL specified, using the hardcoded default value 'tcp://127.0.0.1:0', consider specifying a value.
+Loaded Configuration:
+robot:
+  ip: 157.253.113.142
+  port: 9559
+  loop_rate_hz: 20
+  enable_audio: true
+  enable_top_camera: true
+  enable_bot_camera: true
+  startup_posture: StandInit
+  nao_urdf_path: /root/lerobot/external/nao/nao_robot/nao_description/urdf/naoV50_generated_urdf/nao.urdf
+  pepper_urdf_path: ''
+  camera_resolution: 2
+vr:
+  host: 0.0.0.0
+  port: 8012
+  viser_port: 8080
+  cert: cert.pem
+  key: key.pem
+teleop:
+  joystick_walk_speed: 0.2
+  joystick_rotate_speed: 0.3
+  body_yaw_gain: 1.5
+  controller_pitch_offset_deg: 40.0
+  controller_z_offset_m: 0.1
+  head_pitch_min: -0.6
+  head_pitch_max: 0.4
+  head_yaw_min: -2.0
+  head_yaw_max: 2.0
+ik:
+  loop_rate_hz: 100
+
+Starting subsystems...
+Connecting to robot at 157.253.113.142:9559...
+Detected robot: nao
+Checking autonomy services...
+Going to startup posture: StandInit...
+Failed to subscribe to audio: 	ALProxy::ALProxy
+	Can't find service: VRAudioProcessor
+IKSolver: Loading URDF for nao...
+All subsystems running. Press Ctrl+C to exit.
+[1mVuer Server[0m
+
+[36mLocal:[0m   https://vuer.ai?ws=wss://localhost:8012
+[36mNetwork:[0m https://vuer.ai?ws=wss://172.26.115.130:8012
+
+[36mWorkspace:[0m
+
+ [2m·[0m file:///root/lerobot/naoqi_robots_teleop_vr
+[2m->[0m https://vuer.ai/workspace
+
+╭────── viser (listening *:8080) ───────╮
+│             ╷                         │
+│   HTTP      │ http://localhost:8080   │
+│   Websocket │ ws://localhost:8080     │
+│             ╵                         │
+╰───────────────────────────────────────╯
+An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
+2026-07-28 22:17:28.412 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger13' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.413 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger12' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.417 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger21' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.418 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger13' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.418 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger11' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.419 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger22' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.419 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger22' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.420 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger21' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.420 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger12' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.421 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger23' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.421 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RFinger11' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.422 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LFinger23' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.422 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LThumb1' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.423 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RThumb1' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.424 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'RThumb2' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.424 | WARNING  | pyroki._robot_urdf_parser:_get_joint_limits:434 - Continuous joint 'LThumb2' has no explicit limits. Returning [-pi, pi].
+2026-07-28 22:17:28.584 | INFO     | pyroki._robot_urdf_parser:_topologically_sort_joints:199 - Joints were not in topological order; they will be internally sorted.
+DesktopVis: Loading URDF for nao...
+
+Shutting down gracefully...
+Stopping subsystems...
+IKSolver: Ready.
+Shutdown complete.
+(viser) Server stopped
