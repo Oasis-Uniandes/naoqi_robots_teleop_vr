@@ -21,6 +21,10 @@ vr:
   host: "0.0.0.0"
   port: 8012
   viser_port: 8080
+  
+  # HTTPS certificates (required for WebXR to work locally on many headsets)
+  cert: "cert.pem"
+  key: "key.pem"
 
 teleop:
   # Walk/Roll Speeds (m/s and rad/s)

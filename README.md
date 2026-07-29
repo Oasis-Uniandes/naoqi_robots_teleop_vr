@@ -54,6 +54,7 @@ python main.py robot.ip=192.168.1.100 teleop.joystick_walk_speed=0.1
 - `vr.host`: Host address for the Vuer server (default: `"0.0.0.0"`).
 - `vr.port`: Port for the VR WebXR interface (default: `8012`).
 - `vr.viser_port`: Port for the Desktop 3D visualizer (default: `8080`).
+- `vr.cert` / `vr.key`: Paths to your `.pem` certificates for HTTPS (WebXR strictly requires a secure context to run). Defaults to `"cert.pem"` and `"key.pem"` at the root of the project.
 
 #### `teleop` group
 - `teleop.joystick_walk_speed`: Maximum translation speed in m/s (default: `0.2`).

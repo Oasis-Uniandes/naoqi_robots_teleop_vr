@@ -18,7 +18,12 @@ class VRServer:
         self.host = cfg.vr.host
         self.port = cfg.vr.port
         
-        self.app = Vuer(host=self.host, port=self.port)
+        self.app = Vuer(
+            host=self.host, 
+            port=self.port,
+            cert=cfg.vr.cert if cfg.vr.cert else None,
+            key=cfg.vr.key if cfg.vr.key else None
+        )
         self._running = False
         self._thread = None
         
