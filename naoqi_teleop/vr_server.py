@@ -146,6 +146,10 @@ class VRServer:
         @self.app.add_handler("HEAD_MOVE")
         async def on_head_move(event, session: VuerSession):
             matrix = np.array(event.value["matrix"]).reshape(4, 4).T
+            # Check for bad matrix from VR before extracting rotation
+            if np.linalg.det(matrix[:3, :3]) <= 0.0:
+                return
+                
             # Extract Pitch and Yaw
             euler = R.from_matrix(matrix[:3, :3]).as_euler("xyz")
             pitch = euler[0]

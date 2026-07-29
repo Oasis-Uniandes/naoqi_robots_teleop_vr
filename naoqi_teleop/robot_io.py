@@ -221,7 +221,7 @@ class RobotIO:
             
             # Head
             names.extend(["HeadPitch", "HeadYaw"])
-            angles.extend([head[0], head[1]])
+            angles.extend([float(head[0]), float(head[1])])
             
             if names:
                 # Use a larger fraction of max speed for fast streaming

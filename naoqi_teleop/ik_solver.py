@@ -44,9 +44,20 @@ class IKSolver:
                     urdf_path = desc.URDF_PATH
                     
             from pathlib import Path
-            urdf_path_obj = Path(urdf_path)
+            urdf_path_obj = Path(urdf_path).expanduser().resolve()
+            
+            nao_description_root = urdf_path_obj.parents[2]
+            package_roots = {
+                "nao_description": nao_description_root,
+                "nao_meshes": nao_description_root.parent.parent / "nao_meshes",
+            }
             
             def filename_handler(fname):
+                if fname.startswith("package://"):
+                    package_name, _, rel_path = fname.removeprefix("package://").partition("/")
+                    package_root = package_roots.get(package_name)
+                    if package_root is not None:
+                        return str((package_root / rel_path).resolve())
                 return yourdfpy.filename_handler_magic(fname, dir=urdf_path_obj.parent)
                 
             urdf = yourdfpy.URDF.load(str(urdf_path_obj), filename_handler=filename_handler)
