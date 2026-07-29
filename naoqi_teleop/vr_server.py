@@ -4,7 +4,7 @@ import threading
 import numpy as np
 from PIL import Image
 from scipy.spatial.transform import Rotation as R
-from starlette.responses import StreamingResponse
+from aiohttp import web
 
 from vuer import Vuer, VuerSession
 from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html
@@ -28,22 +28,32 @@ class VRServer:
         self._setup_handlers()
 
     def _setup_routes(self):
-        # Setup audio stream endpoint directly on the Vuer Starlette app
-        @self.app.server.route("/audio_stream")
-        async def audio_stream(request):
-            async def generate_audio():
-                # Yield a minimal WAV header (44 bytes) for 16kHz mono 16-bit PCM
-                # We lie about the total size (use a huge number) for continuous streaming
-                header = b'RIFF\xff\xff\xff\x7fWAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\xff\xff\xff\x7f'
-                yield header
+        # Setup audio stream endpoint directly on Vuer's internal aiohttp app
+        async def audio_stream_handler(request):
+            response = web.StreamResponse(
+                status=200,
+                reason='OK',
+                headers={'Content-Type': 'audio/wav'}
+            )
+            await response.prepare(request)
+            
+            # Minimal WAV header for 16kHz mono 16-bit PCM (fake huge size for continuous stream)
+            header = b'RIFF\xff\xff\xff\x7fWAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00\x80>\x00\x00\x00}\x00\x00\x02\x00\x10\x00data\xff\xff\xff\x7f'
+            await response.write(header)
+            
+            try:
                 while self._running:
                     chunk = self.shared_state.pop_audio()
                     if chunk:
-                        yield chunk
+                        await response.write(chunk)
                     else:
                         await asyncio.sleep(0.05)
+            except Exception:
+                pass
+                
+            return response
             
-            return StreamingResponse(generate_audio(), media_type="audio/wav")
+        self.app._add_route("/audio_stream", audio_stream_handler, "GET")
 
     def _setup_handlers(self):
         @self.app.spawn(start=True)
@@ -167,11 +177,8 @@ class VRServer:
         self._thread.start()
 
     def _run_server(self):
-        import uvicorn
-        # Run the vuer starlette app using uvicorn
-        uvicorn.run(self.app.server, host=self.host, port=self.port, log_level="error")
+        # Run the vuer app using its built-in runner
+        self.app.run()
 
     def stop(self):
         self._running = False
-        # uvicorn doesn't shutdown gracefully from a thread easily without hacks, 
-        # but since it's a daemon thread, main.py exiting will kill it.

@@ -45,6 +45,7 @@ python main.py robot.ip=192.168.1.100 teleop.joystick_walk_speed=0.1
 - `robot.ip`: The IP address of the robot (default: `"127.0.0.1"`).
 - `robot.port`: The NAOqi port (default: `9559`).
 - `robot.loop_rate_hz`: How fast the main control loop runs to fetch cameras and send joints (default: `20`).
+- `robot.startup_posture`: The posture the robot should transition to after disabling autonomy (e.g. `"StandInit"`). Set to empty string to skip.
 - `robot.enable_audio`: Toggle microphone streaming to VR (default: `true`).
 - `robot.enable_top_camera` / `enable_bot_camera`: Toggle individual camera streams (default: `true`).
 - `robot.camera_resolution`: 0 = 160x120, 1 = 320x240, 2 = 640x480 (default: `2`).

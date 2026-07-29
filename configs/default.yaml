@@ -10,6 +10,9 @@ robot:
   enable_audio: true
   enable_top_camera: true
   enable_bot_camera: true
+  
+  # Startup posture to go to after disabling autonomy (e.g. "StandInit")
+  startup_posture: "StandInit"
 
   # Camera Settings (0=160x120, 1=320x240, 2=640x480)
   camera_resolution: 2

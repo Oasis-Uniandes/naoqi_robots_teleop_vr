@@ -120,6 +120,14 @@ class RobotIO:
         except Exception:
             pass
             
+        try:
+            posture = self.session.service("ALRobotPosture")
+            if self.cfg.robot.startup_posture:
+                print(f"Going to startup posture: {self.cfg.robot.startup_posture}...")
+                posture.goToPosture(self.cfg.robot.startup_posture, 0.5)
+        except Exception as e:
+            print(f"Failed to go to startup posture: {e}")
+            
     def start(self):
         self._running = True
         self._thread = threading.Thread(target=self._control_loop, daemon=True)
