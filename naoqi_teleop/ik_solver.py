@@ -8,8 +8,9 @@ import yourdfpy
 from .shared_state import SharedState
 
 class IKSolver:
-    def __init__(self, shared_state: SharedState):
+    def __init__(self, shared_state: SharedState, cfg):
         self.shared_state = shared_state
+        self.cfg = cfg
         self._running = False
         self._thread = None
         self.robot = None
@@ -90,7 +91,7 @@ class IKSolver:
             if target_r is not None:
                 self._solve_arm(target_r, "r_gripper", self.q_right, left=False)
                 
-            time.sleep(0.01) # Solve fast, e.g. 100Hz
+            time.sleep(1.0 / self.cfg.ik.loop_rate_hz)
 
     def _solve_arm(self, target_matrix: np.ndarray, link_name: str, q_state: np.ndarray, left: bool):
         # Use pyroki to solve IK

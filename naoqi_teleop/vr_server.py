@@ -12,10 +12,11 @@ from vuer.schemas import DefaultScene, MotionControllers, ImageBackground, Html
 from .shared_state import SharedState
 
 class VRServer:
-    def __init__(self, shared_state: SharedState, host="0.0.0.0", port=8012):
+    def __init__(self, shared_state: SharedState, cfg):
         self.shared_state = shared_state
-        self.host = host
-        self.port = port
+        self.cfg = cfg
+        self.host = cfg.vr.host
+        self.port = cfg.vr.port
         
         self.app = Vuer(host=self.host, port=self.port)
         self._running = False
@@ -50,11 +51,13 @@ class VRServer:
             # Setup scene with controllers and an HTML audio element to play our stream
             session.set @ DefaultScene()
             session.upsert(MotionControllers(stream=True, key="motionControllers", left=True, right=True), to="bgChildren")
-            session.upsert(Html(
-                html="<audio autoplay src='/audio_stream'></audio>",
-                position=[0, 0, 0],
-                key="audio-player"
-            ), to="bgChildren")
+            
+            if self.cfg.robot.enable_audio:
+                session.upsert(Html(
+                    html="<audio autoplay src='/audio_stream'></audio>",
+                    position=[0, 0, 0],
+                    key="audio-player"
+                ), to="bgChildren")
             
             # Start a background task to stream the camera feed to the VR background
             asyncio.create_task(self._camera_loop(session))
@@ -70,9 +73,12 @@ class VRServer:
             right_state = event.value.get("rightState", {})
             
             # 1. Update IK Targets (Apply controller offset to match wrist)
+            pitch_offset = self.cfg.teleop.controller_pitch_offset_deg
+            z_offset = self.cfg.teleop.controller_z_offset_m
+            
             T_offset = np.eye(4)
-            T_offset[:3, :3] = R.from_euler("x", 40.0, degrees=True).as_matrix()
-            T_offset[2, 3] = 0.10
+            T_offset[:3, :3] = R.from_euler("x", pitch_offset, degrees=True).as_matrix()
+            T_offset[2, 3] = z_offset
             
             with self.shared_state.lock:
                 if left_data and len(left_data) >= 16:
@@ -92,14 +98,17 @@ class VRServer:
                 left_axes = left_state.get("axes", [0, 0, 0, 0])
                 right_axes = right_state.get("axes", [0, 0, 0, 0])
                 
+                walk_speed = self.cfg.teleop.joystick_walk_speed
+                rot_speed = self.cfg.teleop.joystick_rotate_speed
+                
                 if len(left_axes) >= 4:
-                    vx = -float(left_axes[3]) * 0.2  # up is -Y on stick -> forward
-                    vy = -float(left_axes[2]) * 0.2  # left is -X on stick -> left
+                    vx = -float(left_axes[3]) * walk_speed  # up is -Y on stick -> forward
+                    vy = -float(left_axes[2]) * walk_speed  # left is -X on stick -> left
                 else:
                     vx, vy = 0.0, 0.0
                     
                 if len(right_axes) >= 4:
-                    vtheta = -float(right_axes[2]) * 0.3 # left is -X on stick -> positive yaw
+                    vtheta = -float(right_axes[2]) * rot_speed # left is -X on stick -> positive yaw
                 else:
                     vtheta = 0.0
                     
@@ -114,10 +123,10 @@ class VRServer:
             yaw = euler[1]
             
             with self.shared_state.lock:
-                # Update head pitch/yaw (limit to robot's physical bounds roughly)
+                # Update head pitch/yaw (limit to robot's physical bounds)
                 self.shared_state.target_head = (
-                    np.clip(pitch, -0.6, 0.4),
-                    np.clip(yaw, -2.0, 2.0)
+                    np.clip(pitch, self.cfg.teleop.head_pitch_min, self.cfg.teleop.head_pitch_max),
+                    np.clip(yaw, self.cfg.teleop.head_yaw_min, self.cfg.teleop.head_yaw_max)
                 )
                 
                 # For pepper, calculate delta body yaw

@@ -3,6 +3,8 @@ import argparse
 import sys
 import signal
 
+from omegaconf import OmegaConf
+
 from naoqi_teleop.shared_state import SharedState
 from naoqi_teleop.robot_io import RobotIO
 from naoqi_teleop.ik_solver import IKSolver
@@ -10,21 +12,22 @@ from naoqi_teleop.vr_server import VRServer
 from naoqi_teleop.desktop_vis import DesktopVis
 
 def main():
-    parser = argparse.ArgumentParser(description="Standalone VR Teleoperator for NAO and Pepper")
-    parser.add_argument("--robot-ip", type=str, default="127.0.0.1", help="Robot IP address")
-    parser.add_argument("--robot-port", type=int, default=9559, help="Robot port (usually 9559)")
-    parser.add_argument("--vuer-host", type=str, default="0.0.0.0", help="Vuer VR host")
-    parser.add_argument("--vuer-port", type=int, default=8012, help="Vuer VR port")
-    parser.add_argument("--viser-port", type=int, default=8080, help="Viser desktop port")
-    args = parser.parse_args()
+    # Load default configs
+    base_cfg = OmegaConf.load("configs/default.yaml")
+    
+    # Allow overriding from CLI args (e.g. python main.py teleop.joystick_walk_speed=0.5)
+    cli_cfg = OmegaConf.from_cli()
+    cfg = OmegaConf.merge(base_cfg, cli_cfg)
+    
+    print(f"Loaded Configuration:\n{OmegaConf.to_yaml(cfg)}")
 
     state = SharedState()
     
-    # Initialize all subsystems
-    robot = RobotIO(state, ip=args.robot_ip, port=args.robot_port)
-    ik = IKSolver(state)
-    vr = VRServer(state, host=args.vuer_host, port=args.vuer_port)
-    vis = DesktopVis(state, port=args.viser_port)
+    # Initialize all subsystems with the config
+    robot = RobotIO(state, cfg)
+    ik = IKSolver(state, cfg)
+    vr = VRServer(state, cfg)
+    vis = DesktopVis(state, cfg)
     
     # Graceful shutdown handler
     running = True

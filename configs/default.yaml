@@ -1,0 +1,45 @@
+# Default Configuration for Standalone Naoqi VR Teleoperator
+
+robot:
+  ip: "127.0.0.1"
+  port: 9559
+  # Loop rates (Hz)
+  loop_rate_hz: 20
+  
+  # Sensor toggles
+  enable_audio: true
+  enable_top_camera: true
+  enable_bot_camera: true
+
+  # Camera Settings (0=160x120, 1=320x240, 2=640x480)
+  camera_resolution: 2
+
+vr:
+  host: "0.0.0.0"
+  port: 8012
+  viser_port: 8080
+
+teleop:
+  # Walk/Roll Speeds (m/s and rad/s)
+  joystick_walk_speed: 0.2
+  joystick_rotate_speed: 0.3
+  
+  # How much Pepper's base rotates to match user's physical body yaw (gain)
+  body_yaw_gain: 1.5
+  
+  # Controller Offsets to match physical wrists
+  # The VR controllers are held in a way that points upwards relative to the wrist.
+  # This pitch applies an offset to align the IK target with the natural arm direction.
+  controller_pitch_offset_deg: 40.0
+  # Z offset moves the IK target slightly behind the controller to the actual wrist joint
+  controller_z_offset_m: 0.10
+  
+  # Head Tracking Limits (radians)
+  head_pitch_min: -0.6
+  head_pitch_max: 0.4
+  head_yaw_min: -2.0
+  head_yaw_max: 2.0
+
+ik:
+  # How fast the IK solver runs continuously
+  loop_rate_hz: 100

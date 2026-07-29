@@ -22,10 +22,11 @@ class AudioProcessor:
             self.shared_state.push_audio(bytes(buffer))
 
 class RobotIO:
-    def __init__(self, shared_state: SharedState, ip: str = "127.0.0.1", port: int = 9559):
+    def __init__(self, shared_state: SharedState, cfg):
         self.shared_state = shared_state
-        self.ip = ip
-        self.port = port
+        self.cfg = cfg
+        self.ip = cfg.robot.ip
+        self.port = cfg.robot.port
         
         self.session = None
         self.memory = None
@@ -71,26 +72,53 @@ class RobotIO:
             
         print(f"Detected robot: {self.shared_state.robot_type}")
         
-        # Setup Video (Resolution 2 = 640x480, ColorSpace 13 = BGR)
+        # Shutdown Autonomy Services
+        self._shutdown_autonomy()
+        
+        # Setup Video (ColorSpace 13 = BGR)
+        res = self.cfg.robot.camera_resolution
         try:
-            self.top_camera_client = self.video.subscribeCamera("top_cam_vr", 0, 2, 13, 15)
-            self.bot_camera_client = self.video.subscribeCamera("bot_cam_vr", 1, 2, 13, 15)
+            if self.cfg.robot.enable_top_camera:
+                self.top_camera_client = self.video.subscribeCamera("top_cam_vr", 0, res, 13, 15)
+            if self.cfg.robot.enable_bot_camera:
+                self.bot_camera_client = self.video.subscribeCamera("bot_cam_vr", 1, res, 13, 15)
         except Exception as e:
             print(f"Failed to subscribe to cameras: {e}")
             
         # Setup Audio
-        try:
-            # Register our AudioProcessor as a service so ALAudioDevice can call it
-            self.audio_processor = AudioProcessor(self.shared_state)
-            self.audio_service_id = self.session.registerService("VRAudioProcessor", self.audio_processor)
-            self.audio.setClientPreferences("VRAudioProcessor", 16000, 1, 0) # 16kHz, mono
-            self.audio.subscribe("VRAudioProcessor")
-        except Exception as e:
-            print(f"Failed to subscribe to audio: {e}")
+        if self.cfg.robot.enable_audio:
+            try:
+                self.audio_processor = AudioProcessor(self.shared_state)
+                self.audio_service_id = self.session.registerService("VRAudioProcessor", self.audio_processor)
+                self.audio.setClientPreferences("VRAudioProcessor", 16000, 1, 0)
+                self.audio.subscribe("VRAudioProcessor")
+            except Exception as e:
+                print(f"Failed to subscribe to audio: {e}")
             
         # Wake up
         if self.motion:
             self.motion.wakeUp()
+            
+    def _shutdown_autonomy(self):
+        print("Checking autonomy services...")
+        try:
+            life = self.session.service("ALAutonomousLife")
+            if life.getState() != "disabled":
+                print("Disabling ALAutonomousLife... (robot may crouch)")
+                life.setState("disabled")
+                while life.getState() != "disabled":
+                    time.sleep(0.5)
+                print("ALAutonomousLife is now disabled.")
+        except Exception as e:
+            print(f"ALAutonomousLife not found or failed: {e}")
+            
+        try:
+            awareness = self.session.service("ALBasicAwareness")
+            if awareness.isEnabled():
+                print("Disabling ALBasicAwareness...")
+                awareness.setEnabled(False)
+        except Exception:
+            pass
             
     def start(self):
         self._running = True
@@ -124,8 +152,8 @@ class RobotIO:
             self._fetch_sensors()
             self._apply_commands()
             
-            # Loop at roughly 20Hz
-            time.sleep(0.05)
+            # Loop rate driven by config
+            time.sleep(1.0 / self.cfg.robot.loop_rate_hz)
 
     def _fetch_sensors(self):
         # 1. Fetch Cameras
@@ -197,7 +225,7 @@ class RobotIO:
             if self.shared_state.robot_type == "pepper":
                 # For pepper, if there is a body yaw delta, add it to vtheta to align with the user
                 # We can use a proportional gain to smoothly rotate the base.
-                vtheta += body_yaw_delta * 1.5
+                vtheta += body_yaw_delta * self.cfg.teleop.body_yaw_gain
                 
             # Only send move commands if there is non-zero input or if we were just moving
             if abs(vx) > 0.05 or abs(vy) > 0.05 or abs(vtheta) > 0.05:

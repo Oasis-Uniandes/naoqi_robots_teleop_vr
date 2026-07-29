@@ -8,9 +8,10 @@ import robot_descriptions
 from .shared_state import SharedState
 
 class DesktopVis:
-    def __init__(self, shared_state: SharedState, port=8080):
+    def __init__(self, shared_state: SharedState, cfg):
         self.shared_state = shared_state
-        self.port = port
+        self.cfg = cfg
+        self.port = cfg.vr.viser_port
         self.server = None
         self._running = False
         self._thread = None
